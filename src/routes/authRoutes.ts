@@ -1,8 +1,11 @@
 import express, { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { User } from "../models/User";
+import jwt from "jsonwebtoken";
 
 const router = express.Router();
+
+const SECRET_KEY = process.env.JWT_SECRET || "banana";
 
 router.post("/register", async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -17,7 +20,13 @@ router.post("/register", async (req: Request, res: Response) => {
 
     await user.save();
 
-    res.status(201).json({ message: "Usuário registrado com sucesso" });
+    const token = jwt.sign({ id: user._id, email: user.email }, SECRET_KEY);
+
+    res.status(201).json({
+      message: "Usuário registrado com sucesso",
+      email: user.email,
+      token,
+    });
   } catch (error) {
     res.status(500).json({ message: "Erro ao registrar usuário" });
   }
@@ -41,7 +50,13 @@ router.post("/login", async (req: Request, res: Response) => {
       return;
     }
 
-    res.status(200).json({ message: "Login bem-sucedido" });
+    const token = jwt.sign({ id: user._id, email: user.email }, SECRET_KEY);
+
+    res.status(200).json({
+      message: "Login bem-sucedido",
+      email: user.email,
+      token,
+    });
   } catch (error) {
     res.status(500).json({ message: "Erro ao fazer login" });
   }
