@@ -2,12 +2,19 @@ import dotenv from "dotenv";
 import express, { Application } from "express";
 import router from "./routes/authRoutes";
 import mongoose from "mongoose";
+import cors from "cors";
 
 dotenv.config();
 
 const app: Application = express();
 
 app.use(express.json());
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+
 app.use("/api/v1/", router);
 
 mongoose
